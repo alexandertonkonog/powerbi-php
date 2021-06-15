@@ -4,24 +4,25 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Models\User;
 use App\Models\ReportGroup;
-use App\Models\UserGroup;
 
-class User extends Model
+class UserGroup extends Model
 {
     use HasFactory;
-
-    public $incrementing = false;
-    protected $keyType = 'integer';
-    protected $fillable = ['id'];
-    
-    public function groups()
+    public function users()
     {
-        return $this->belongsToMany(UserGroup::class);
+        return $this->belongsToMany(User::class);
     }
     public function reportGroups()
     {
         return $this->belongsToMany(ReportGroup::class);
+    }
+    public function json()
+    {
+        $elem = $this;
+        $elem->users = $this->users;
+        return json_decode($elem, true);
     }
     public function jsonReports()
     {
@@ -30,4 +31,3 @@ class User extends Model
         return json_decode($elem, true);
     }
 }
-
