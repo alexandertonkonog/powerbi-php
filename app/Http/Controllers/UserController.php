@@ -5,6 +5,10 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\UserGroup;
+use App\Models\Settings;
+use App\Utils\ExternalApi;
+use DateTime;
+use DateTimeZone;
 
 class UserController extends Controller
 {    
@@ -74,5 +78,36 @@ class UserController extends Controller
 
     public function getUserGroups() {
         return json_encode(UserGroup::all());
+    }
+
+    public function getToken(Request $request) {
+        if (ExternalApi::needRecieveToken()) {
+            ExternalApi::getToken();
+        }
+        $data = $request->all();
+        $id = intval($data['user_id']);
+        $settings = Settings::all();
+        $settings = $settings->toArray();
+        $token = array_search('token', array_column($settings, 'serviceName'));
+        $tokenTime = array_search('tokenTime', array_column($settings, 'serviceName'));
+        $user = User::with('groups', 'reportGroups')->find($id);
+        $isAdmin = false;
+        if ($user) {
+            foreach($user->groups as $group) {
+                $groupId = $group->id;
+                if ($groupId == 1) {
+                    $isAdmin = true;
+                }
+            }
+            return [
+                'token' => [
+                    'token' => $settings[$token]['value'],
+                    'tokenTime' => $settings[$tokenTime]['value']
+                ],
+                'isAdmin' => $isAdmin
+            ];
+        } else {
+            return response()->json(['error' => 'Нет такого пользователя'], 404);
+        }
     }
 }

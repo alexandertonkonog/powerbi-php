@@ -17,7 +17,6 @@ class CreateReportReportGroupTable extends Migration
             $table->id();
             $table->string('report_id');
             $table->integer('report_group_id');
-            $table->timestamps();
         });
     }
 

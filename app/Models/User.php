@@ -29,5 +29,11 @@ class User extends Model
         $elem->reportGroups = $this->reportGroups;
         return json_decode($elem, true);
     }
+    public function jsonGroups()
+    {
+        $elem = $this;
+        $elem->groups = $this->groups;
+        return json_decode($elem, true);
+    }
 }
 

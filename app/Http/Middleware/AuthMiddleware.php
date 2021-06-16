@@ -18,6 +18,7 @@ class AuthMiddleware {
         $username = Settings::where('serviceName', 'appUsername')->first();
         $password = Settings::where('serviceName', 'appPassword')->first();
         $condition = true;
+        $user_id = null;
         $authHeader = $request->header('Authorization');
         if (!empty($authHeader)) {
             $authCode = explode(' ', $authHeader);
@@ -26,6 +27,7 @@ class AuthMiddleware {
                 if ($auth[0] != $username->value || $auth[1] != $password->value) {
                     $condition = false;
                 }
+                $user_id = $auth[2];
             } else {
                 $condition = false;
             }
@@ -33,10 +35,9 @@ class AuthMiddleware {
             $condition = false;
         }
         if ($condition) {
-            $next($request);
+            return $next($request->merge(['user_id' => $user_id]));
         } else {
             return response()->json(['error' => 'Не авторизован'], 401);
         }
-       
     }
 }
