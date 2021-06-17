@@ -84,7 +84,26 @@ class ReportController extends Controller
         $group = ReportGroup::find(intval($groupId));
         $group->reports()->attach($reports);
 
-        return $group->jsonReports();
+        return json_encode(ReportGroup::with('reports')->get());
+    }
+    
+    public function removeReportFromGroup(Request $request) {
+        $groupId = $request->input('group');
+        $reportIds = $request->input('entities');
+        $group = ReportGroup::find(intval($groupId));
+        if (count($reportIds) > 0) {
+            $group->reports()->detach($reportIds);
+        } else {
+            $group->reports()->detach();
+        }
+    
+        return json_encode(ReportGroup::with('reports')->get());
+    }
+
+    public function removeReportGroup(Request $request) {
+        $groupIds = $request->input('groups');
+        ReportGroup::destroy($groupIds);
+        return json_encode(ReportGroup::with('reports')->get());
     }
 
     public function setReportGroup(Request $request) {
@@ -93,6 +112,6 @@ class ReportController extends Controller
         $group->description =$request->input('description');
         $group->save();
 
-        return $group->toJson();
+        return json_encode(ReportGroup::with('reports')->get());
     }
 }

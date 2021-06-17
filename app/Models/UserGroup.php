@@ -30,4 +30,12 @@ class UserGroup extends Model
         $elem->reportGroups = $this->reportGroups;
         return json_decode($elem, true);
     }
+    public static function boot() {
+        parent::boot();
+
+        static::deleting(function($reportGroup) { // before delete() method call this
+             $reportGroup->users()->detach();
+             $reportGroup->reportGroups()->detach();
+        });
+    }
 }

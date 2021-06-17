@@ -23,5 +23,13 @@ class ReportGroup extends Model
         $elem->reports = $this->reports;
         return json_decode($elem, true);
     }
+    public static function boot() {
+        parent::boot();
+
+        static::deleting(function($reportGroup) { // before delete() method call this
+             $reportGroup->reports()->detach();
+             $reportGroup->userGroups()->detach();
+        });
+    }
     use HasFactory;
 }

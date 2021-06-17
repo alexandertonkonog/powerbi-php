@@ -18,52 +18,52 @@ class UserController extends Controller
         $user->description =$request->input('description');
         $user->save();
 
-        return $user->toJson();
+        return json_encode(UserGroup::with('reportGroups', 'users')->get());
     }
 
-    public function setUsersIntoGroup(Request $request) {
+    public function setReportsIntoGroup(Request $request) {
         $groupId = $request->input('group');
-        $userIds = $request->input('users');
+        $userIds = $request->input('entities');
         $users = [];
 
         foreach($userIds as $value) {
-            $users[] = ['user_id' => $value, 'user_group_id' => $groupId];
+            $users[] = ['report_group_id' => $value, 'user_group_id' => $groupId];
         }
 
         $group = UserGroup::find(intval($groupId));
-        $group->users()->attach($users);
+        $group->reportGroups()->attach($users);
 
-        return $group->json();
+        return json_encode(UserGroup::with('reportGroups', 'users')->get());
     }
 
     public function setReportIntoUser(Request $request) {
-        $userId = $request->input('user');
-        $reportIds = $request->input('reports');
+        $userId = $request->input('group');
+        $reportIds = $request->input('entities');
         $reports = [];
 
         foreach($reportIds as $value) {
             $reports[] = ['user_id' => $userId, 'report_group_id' => $value];
         }
 
-        $user = User::find(intval($groupId));
+        $user = User::find(intval($userId));
         $user->reportGroups()->attach($reports);
 
-        return $user->jsonReports();
+        return json_encode(User::with('reportGroups', 'groups')->get());
     }
 
-    public function setReportIntoUserGroup(Request $request) {
-        $userId = $request->input('user');
-        $reportIds = $request->input('reports');
+    public function setUserIntoUserGroup(Request $request) {
+        $userId = $request->input('group');
+        $reportIds = $request->input('entities');
         $reports = [];
 
         foreach($reportIds as $value) {
-            $reports[] = ['user_group_id' => $userId, 'report_group_id' => $value];
+            $reports[] = ['user_group_id' => $userId, 'user_id' => $value];
         }
 
         $group = UserGroup::find(intval($userId));
-        $group->reportGroups()->attach($reports);
+        $group->users()->attach($reports);
 
-        return $user->jsonReports();
+        return json_encode(UserGroup::with('reportGroups', 'users')->get());
     }
 
     public function setUsers(Request $request) {
@@ -72,12 +72,66 @@ class UserController extends Controller
         return json_encode($updateUsers);
     }
 
+    public function removeReportFromGroup(Request $request) {
+        $groupId = $request->input('group');
+        $reportIds = $request->input('entities');
+        $group = UserGroup::find(intval($groupId));
+        if (count($reportIds) > 0) {
+            $group->reportGroups()->detach($reportIds);
+        } else {
+            $group->reportGroups()->detach();
+        }
+    
+        return json_encode(UserGroup::with('reportGroups', 'users')->get());
+    }
+
+    public function removeReportFromUser(Request $request) {
+        $groupId = $request->input('group');
+        $reportIds = $request->input('entities');
+        $group = User::find(intval($groupId));
+        if (count($reportIds) > 0) {
+            $group->reportGroups()->detach($reportIds);
+        } else {
+            $group->reportGroups()->detach();
+        }
+    
+        return json_encode(User::with('reportGroups', 'groups')->get());
+    }
+
+    public function removeUserFromUserGroup(Request $request) {
+        $groupId = $request->input('group');
+        $reportIds = $request->input('entities');
+        $group = UserGroup::find(intval($groupId));
+        if ($groupId = 1) {
+            $count = $group->users()->count();
+            if ($count == count($reportIds) || count($reportIds) == 0) {
+                return response()->json(['error' => 'Нет такого пользователя'], 400);
+            }
+        }
+        if (count($reportIds) > 0) {
+            $group->users()->detach($reportIds);
+        } else {
+            $group->users()->detach();
+        } 
+        return json_encode(UserGroup::with('reportGroups', 'users')->get());
+    }
+
+    public function removeUserGroup(Request $request) {
+        
+        $groupIds = $request->input('groups');
+        $groupIds = array_filter($groupIds, function ($var) {
+            return $var != 1;
+        });
+        UserGroup::destroy($groupIds);
+        return json_encode(UserGroup::with('reportGroups', 'users')->get());
+    }
+
     public function getUsers() {
-        return json_encode(User::all());
+        return json_encode(User::with('reportGroups', 'groups')->get());
     }
 
     public function getUserGroups() {
-        return json_encode(UserGroup::all());
+        return json_encode(UserGroup::with('reportGroups', 'users')->get());
     }
 
     public function getToken(Request $request) {
