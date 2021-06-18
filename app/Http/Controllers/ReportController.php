@@ -22,8 +22,13 @@ class ReportController extends Controller
         $id = intval($data['user_id']);
         $user = User::with('groups', 'reportGroups')->find($id);
         $reportGroupsList = [];
+        $isAdmin = false;
         if ($user) {
             foreach($user->groups as $group) {
+                if ($group->id == 1) {
+                    $isAdmin = true;
+                    break;
+                }
                 $array = $group->reportGroups;
                 foreach($array as $repGroup) {
                     $id = $repGroup->id;
@@ -32,16 +37,17 @@ class ReportController extends Controller
                     }
                 }
             }
-            foreach($user->reportGroups as $group) {
-                $id = $group->id;
-                if (!in_array($id, $reportGroupsList)) {
-                    $reportGroupsList[] = $id; 
+            if ($isAdmin) {
+                return ReportGroup::with('reports')->get();
+            } else {
+                foreach($user->reportGroups as $group) {
+                    $id = $group->id;
+                    if (!in_array($id, $reportGroupsList)) {
+                        $reportGroupsList[] = $id; 
+                    }
                 }
+                return ReportGroup::with('reports')->whereIn('id', $reportGroupsList)->get();
             }
-
-            $reportGroups = ReportGroup::with('reports')->whereIn('id', $reportGroupsList)->get();
-        
-            return $reportGroups;
         } else {
             return response()->json(['error' => 'Нет такого пользователя'], 404);
         }
@@ -74,7 +80,7 @@ class ReportController extends Controller
 
     public function setReportIntoGroup(Request $request) {
         $groupId = $request->input('group');
-        $reportIds = $request->input('reports');
+        $reportIds = $request->input('entities');
         $reports = [];
 
         foreach($reportIds as $value) {

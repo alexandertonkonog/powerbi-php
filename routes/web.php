@@ -3,7 +3,7 @@
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\UserController;
-use App\Http\Controllers\ApiController;
+use App\Http\Controllers\SettingsContoller;
 /*
 |--------------------------------------------------------------------------
 | Web Routes
@@ -38,4 +38,5 @@ Route::get('/api/user/get', [UserController::class, 'getUsers']);
 Route::get('/api/user/group/get', [UserController::class, 'getUserGroups']);
 Route::get('/api/token/get', [UserController::class, 'getToken']);
 
-
+Route::get('/api/settings/get', [SettingsContoller::class, 'getSettings']);
+Route::post('/api/settings/set', [SettingsContoller::class, 'setSettings']);

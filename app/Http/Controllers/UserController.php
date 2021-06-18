@@ -10,8 +10,7 @@ use App\Utils\ExternalApi;
 use DateTime;
 use DateTimeZone;
 
-class UserController extends Controller
-{    
+class UserController extends Controller {    
     public function setUserGroup(Request $request) {
         $user = new UserGroup();
         $user->name = $request->input('name');
