@@ -75,7 +75,7 @@ class ReportController extends Controller
             $reports[] = ['id' => $report['id'], 'name' => $report['name'], 'url' => $report['embedUrl']];
         }
         $updateReports = Report::upsert($reports, ['id'], ['id', 'name', 'url']);
-        return json_encode($updateReports);
+        return json_encode(Report::all());
     }
 
     public function setReportIntoGroup(Request $request) {

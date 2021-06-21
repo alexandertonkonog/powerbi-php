@@ -67,8 +67,8 @@ class UserController extends Controller {
 
     public function setUsers(Request $request) {
         $users = $request->input('users');
-        $updateUsers = User::upsert($users, ['id'], ['id', 'name']);
-        return json_encode($updateUsers);
+        User::upsert($users, ['id'], ['id', 'name']);
+        return json_encode(User::with('reportGroups', 'groups')->get());
     }
 
     public function removeReportFromGroup(Request $request) {
@@ -143,6 +143,7 @@ class UserController extends Controller {
         $settings = $settings->toArray();
         $token = array_search('token', array_column($settings, 'serviceName'));
         $tokenTime = array_search('tokenTime', array_column($settings, 'serviceName'));
+        $lastRefresh = array_search('lastRefresh', array_column($settings, 'serviceName'));
         $user = User::with('groups', 'reportGroups')->find($id);
         $isAdmin = false;
         if ($user) {
@@ -155,9 +156,11 @@ class UserController extends Controller {
             return [
                 'token' => [
                     'token' => $settings[$token]['value'],
-                    'tokenTime' => $settings[$tokenTime]['value']
+                    'tokenTime' => $settings[$tokenTime]['value'],
+                    
                 ],
-                'isAdmin' => $isAdmin
+                'isAdmin' => $isAdmin,
+                'lastRefresh' => $settings[$lastRefresh]['value'],
             ];
         } else {
             return response()->json(['error' => 'Нет такого пользователя'], 404);

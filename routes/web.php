@@ -40,3 +40,5 @@ Route::get('/api/token/get', [UserController::class, 'getToken']);
 
 Route::get('/api/settings/get', [SettingsContoller::class, 'getSettings']);
 Route::post('/api/settings/set', [SettingsContoller::class, 'setSettings']);
+Route::post('/api/settings/refresh', [SettingsContoller::class, 'refreshSettings']);
+Route::post('/api/settings/first', [SettingsContoller::class, 'firstSetSettings']);
