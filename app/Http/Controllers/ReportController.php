@@ -25,10 +25,6 @@ class ReportController extends Controller
         $isAdmin = false;
         if ($user) {
             foreach($user->groups as $group) {
-                if ($group->id == 1) {
-                    $isAdmin = true;
-                    break;
-                }
                 $array = $group->reportGroups;
                 foreach($array as $repGroup) {
                     $id = $repGroup->id;
@@ -37,17 +33,13 @@ class ReportController extends Controller
                     }
                 }
             }
-            if ($isAdmin) {
-                return ReportGroup::with('reports')->get();
-            } else {
-                foreach($user->reportGroups as $group) {
-                    $id = $group->id;
-                    if (!in_array($id, $reportGroupsList)) {
-                        $reportGroupsList[] = $id; 
-                    }
+            foreach($user->reportGroups as $group) {
+                $id = $group->id;
+                if (!in_array($id, $reportGroupsList)) {
+                    $reportGroupsList[] = $id; 
                 }
-                return ReportGroup::with('reports')->whereIn('id', $reportGroupsList)->get();
             }
+            return ReportGroup::with('reports')->whereIn('id', $reportGroupsList)->get();
         } else {
             return response()->json(['error' => 'Нет такого пользователя'], 404);
         }
