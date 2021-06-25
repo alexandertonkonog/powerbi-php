@@ -19,7 +19,7 @@ return [
 
     'allowed_methods' => ['*'],
 
-    'allowed_origins' => ['http://localhost:3000', 'https://b24-tvwvhc.bitrix24.ru/marketplace/app/'],
+    'allowed_origins' => ['http://localhost:3000', 'https://cdn-ru.bitrix24.ru'],
 
     'allowed_origins_patterns' => [],
 

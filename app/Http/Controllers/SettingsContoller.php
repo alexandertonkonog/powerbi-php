@@ -23,8 +23,18 @@ class SettingsContoller extends Controller
         /*new admin*/
         $userId = $request->input('id');
         $userName = $request->input('name');
-        $user = User::firstOrNew(['id' => intval($userId), 'name' => $userName]);
-        $user->groups()->attach([['user_id' => $user->id, 'user_group_id' => 1]]);
+        $user = User::find(intval($userId));
+        if ($user) {
+            $user->name = $userName;
+            $user->save();
+            $user->groups()->attach([['user_id' => $user->id, 'user_group_id' => 1]]);
+        } else {
+            $user = new User();
+            $user->id = intval($userId);
+            $user->name = $userName;
+            $user->save();
+            $user->groups()->attach([['user_id' => intval($userId), 'user_group_id' => 1]]);
+        }
         /*new admin*/
         return json_encode(['success' => true]);
     }
