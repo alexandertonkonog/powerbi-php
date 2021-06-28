@@ -101,10 +101,10 @@ class UserController extends Controller {
         $groupId = $request->input('group');
         $reportIds = $request->input('entities');
         $group = UserGroup::find(intval($groupId));
-        if ($groupId = 1) {
+        if ($groupId == 1) {
             $count = $group->users()->count();
             if ($count == count($reportIds) || count($reportIds) == 0) {
-                return response()->json(['error' => 'Нет такого пользователя'], 400);
+                return response()->json(['error' => 'Нельзя удалить всех пользователей из группы администраторов'], 400);
             }
         }
         if (count($reportIds) > 0) {
